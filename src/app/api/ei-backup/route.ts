@@ -1,61 +1,63 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getProtoRoot } from "@/app/protoLoader";
+import {
+  decodeResponse,
+  encodePayloadToBase64,
+  fetchData,
+  getClientVersionPayload,
+  validatePayload,
+  validateResponse,
+} from "@/app/utils";
 
-const ENDPOINT = "https://ctx-dot-auxbrainhome.appspot.com";
-
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<Response> {
   const { eid } = await request.json();
 
   if (!eid) {
     return Response.json({ error: "Missing required parameter 'eid'" }, { status: 400 });
   }
 
-  const root: protobuf.Root = await getProtoRoot();
+  try {
+    // Load the protobuf root
+    const root: protobuf.Root = await getProtoRoot();
+    const EggIncFirstContactRequest = root.lookupType(
+      "ei.EggIncFirstContactRequest"
+    );
+    const EggIncFirstContactResponse = root.lookupType(
+      "ei.EggIncFirstContactResponse"
+    );
 
-  const EggIncFirstContactRequest = root.lookupType(
-    "ei.EggIncFirstContactRequest"
-  );
-  const EggIncFirstContactResponse = root.lookupType(
-    "ei.EggIncFirstContactResponse"
-  );
+    // Create and validate the payload
+    const payload = getClientVersionPayload(eid);
+    const error = validatePayload(EggIncFirstContactRequest, payload);
 
-  const payload = {
-    rinfo: {
-      eiUserId: eid,
-      clientVersion: 69,
-      version: "1.34",
-      build: "111299",
-    },
-    eiUserId: eid,
-    clientVersion: 69,
-  };
+    if (error) {
+      return error;
+    }
 
-  const error = EggIncFirstContactRequest.verify(payload);
-  if (error) throw Error(error);
+    // Encode the payload to base64
+    const base64Data = encodePayloadToBase64(
+      EggIncFirstContactRequest,
+      payload
+    );
 
-  const message = EggIncFirstContactRequest.create(payload);
-  const buffer = EggIncFirstContactRequest.encode(message).finish();
-  const base64Data = btoa(String.fromCharCode(...buffer));
+    // Fetch the data from the EI server
+    const responseText = await fetchData(base64Data);
 
-  const response = await fetch(ENDPOINT + "/ei/bot_first_contact", {
-    method: "POST",
-    mode: "cors",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ data: base64Data }),
-  });
+    // Decode the response
+    const responseMessage = decodeResponse(
+      EggIncFirstContactResponse,
+      responseText
+    );
 
-  if (!response.ok)
-    throw new Error(`Network response was not ok: ${response.statusText}`);
-  const responseText = await response.text();
+    // Validate the response
+    const responseValidation = validateResponse(responseMessage);
 
-  const binaryResponse = Uint8Array.from(atob(responseText), (c) =>
-    c.charCodeAt(0)
-  );
-  const responseMessage = EggIncFirstContactResponse.decode(binaryResponse);
-
-  if ((responseMessage as any).errorCode || (responseMessage as any).errorMessage) {
-    throw Error((responseMessage as any).errorMessage);
+    if (responseValidation) {
+      return responseValidation;
+    }
+    return Response.json(responseMessage, { status: 200 });
+  } catch (error: any) {
+    console.log(error.message);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  return Response.json({ backup: (responseMessage as any).backup }, { status: 200 });
 }
