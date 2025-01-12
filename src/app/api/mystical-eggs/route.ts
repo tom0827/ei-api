@@ -59,6 +59,8 @@ export async function POST(request: Request): Promise<Response> {
       responseText
     ) as any;
 
+    console.log(responseMessage.backup)
+
     const mysticalEggs = {
       "soulEggs": responseMessage.backup.game.soulEggsD,
       "prophecyEggs": responseMessage.backup.game.eggsOfProphecy.low,
