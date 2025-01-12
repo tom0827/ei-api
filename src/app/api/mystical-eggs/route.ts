@@ -59,12 +59,10 @@ export async function POST(request: Request): Promise<Response> {
       responseText
     ) as any;
 
-    console.log(responseMessage.backup)
-
     const mysticalEggs = {
       "soulEggs": responseMessage.backup.game.soulEggsD,
-      "prophecyEggs": responseMessage.backup.game.eggsOfProphecy.low,
-      "prestiges": responseMessage.backup.stats.numPrestiges.low,
+      "prophecyEggs": responseMessage.backup.game.eggsOfProphecy,
+      "prestiges": responseMessage.backup.stats.numPrestiges,
     }
     
     return Response.json(mysticalEggs, { status: 200 });
