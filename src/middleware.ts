@@ -16,8 +16,8 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  const limit = 1; // Limit requests to 1 per IP per window
-  const windowMs = 30 * 1000; // 30 second window
+  const limit = 3; // Limit requests to 5 per IP per window
+  const windowMs = 60 * 1000; // 60 second window
 
   if (!rateLimitMap.has(ip)) {
     rateLimitMap.set(ip, { count: 0, lastReset: Date.now() });
@@ -40,5 +40,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/ei-backup"],
+  matcher: ["/api/mystical-eggs"],
 };

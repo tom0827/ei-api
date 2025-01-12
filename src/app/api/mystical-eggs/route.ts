@@ -4,16 +4,17 @@ import {
   decodeResponse,
   encodePayloadToBase64,
   fetchData,
-  getClientVersionPayload,
   validatePayload,
-  validateResponse,
 } from "@/app/utils";
 
 export async function POST(request: Request): Promise<Response> {
   const { eid } = await request.json();
 
   if (!eid) {
-    return Response.json({ error: "Missing required parameter 'eid'" }, { status: 400 });
+    return Response.json(
+      { error: "Missing required parameter 'eid'" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -27,7 +28,16 @@ export async function POST(request: Request): Promise<Response> {
     );
 
     // Create and validate the payload
-    const payload = getClientVersionPayload(eid);
+    const payload = {
+      rinfo: {
+        eiUserId: eid,
+        clientVersion: 69,
+        version: "1.34",
+        build: "111299",
+      },
+      eiUserId: eid,
+      clientVersion: 69,
+    };
     const error = validatePayload(EggIncFirstContactRequest, payload);
 
     if (error) {
@@ -47,15 +57,15 @@ export async function POST(request: Request): Promise<Response> {
     const responseMessage = decodeResponse(
       EggIncFirstContactResponse,
       responseText
-    );
+    ) as any;
 
-    // Validate the response
-    const responseValidation = validateResponse(responseMessage);
-
-    if (responseValidation) {
-      return responseValidation;
+    const mysticalEggs = {
+      "soulEggs": responseMessage.backup.game.soulEggsD,
+      "prophecyEggs": responseMessage.backup.game.eggsOfProphecy.low,
+      "prestiges": responseMessage.backup.stats.numPrestiges.low,
     }
-    return Response.json(responseMessage, { status: 200 });
+    
+    return Response.json(mysticalEggs, { status: 200 });
   } catch (error: any) {
     console.log(error.message);
     return Response.json({ error: "Internal server error" }, { status: 500 });
