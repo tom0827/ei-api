@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"ei-api/handlers"
+	"ei-api/repository"
 	"errors"
 	"log"
 	"os"
@@ -23,10 +24,15 @@ func initDB(ctx context.Context) (*pgx.Conn, error) {
 func main() {
 	ctx := context.Background()
 	conn, err := initDB(ctx)
+
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}
 	defer conn.Close(ctx)
+
+	if err := repository.PrepareStatements(ctx, conn); err != nil {
+		log.Fatalf("Failed to prepare statements: %v", err)
+	}
 
 	router := gin.New()
 	router.Use(gin.Logger())
