@@ -4,6 +4,7 @@ import (
 	"ei-api/models"
 	"ei-api/repository"
 	"ei-api/utils"
+	"log"
 	"net/http"
 
 	ei_proto "ei-api/proto"
@@ -27,12 +28,14 @@ func FetchBackup(c *gin.Context, conn *pgx.Conn) {
 
 	encoded, err := utils.EncodePayloadToBase64(req)
 	if err != nil {
+		log.Println("Failed to encode payload:", err)
 		c.JSON(500, gin.H{"error": "Encoding failed"})
 		return
 	}
 
 	responseText, err := utils.FetchData(encoded)
 	if err != nil {
+		log.Println("Failed to fetch data:", err)
 		c.JSON(500, gin.H{"error": "Failed to fetch data"})
 		return
 	}
@@ -40,11 +43,13 @@ func FetchBackup(c *gin.Context, conn *pgx.Conn) {
 	resp := &ei_proto.EggIncFirstContactResponse{}
 	err = utils.DecodeResponse(responseText, resp)
 	if err != nil {
+		log.Println("Failed to decode response:", err)
 		c.JSON(500, gin.H{"error": "Decoding failed"})
 		return
 	}
 
 	if resp.ErrorMessage != nil && *resp.ErrorMessage != "" {
+		log.Println("Error in response:", *resp.ErrorMessage)
 		c.JSON(http.StatusBadRequest, gin.H{"error": *resp.ErrorMessage})
 		return
 	}
@@ -58,6 +63,7 @@ func FetchBackup(c *gin.Context, conn *pgx.Conn) {
 	err = repository.InsertStats(c.Request.Context(), conn, stats)
 
 	if err != nil {
+		log.Println("Failed to insert stats:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert backup"})
 		return
 	}
