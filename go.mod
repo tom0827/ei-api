@@ -6,7 +6,6 @@ toolchain go1.24.4
 
 require (
 	github.com/gin-gonic/gin v1.10.1
-	github.com/joho/godotenv v1.5.1
 	google.golang.org/protobuf v1.34.1
 )
 
