@@ -44,6 +44,11 @@ func FetchBackup(c *gin.Context, conn *pgx.Conn) {
 		return
 	}
 
+	if resp.ErrorMessage != nil && *resp.ErrorMessage != "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": *resp.ErrorMessage})
+		return
+	}
+
 	stats := models.Stats{
 		SoulEggs:     resp.GetBackup().GetGame().GetSoulEggsD(),
 		ProphecyEggs: resp.GetBackup().GetGame().GetEggsOfProphecy(),

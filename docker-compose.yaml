@@ -5,4 +5,4 @@ services:
       - .env
     restart: always
     ports:
-      - "5000:5000"
+      - "2052:2052"

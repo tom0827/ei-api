@@ -44,5 +44,5 @@ jobs:
         sudo docker run --env-file /home/ubuntu/ei-api/.env -d \
           --name ei-api \
           --restart always \
-          -p 5000:5000 \
+          -p 2052:2052 \
           ${{ secrets.DOCKER_USERNAME }}/ei-api:latest

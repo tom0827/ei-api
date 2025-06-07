@@ -48,5 +48,5 @@ func main() {
 	router.POST("/api/users/backups/fetch", func(c *gin.Context) {
 		handlers.FetchBackup(c, conn)
 	})
-	router.Run(":5000")
+	router.Run(":2052")
 }
