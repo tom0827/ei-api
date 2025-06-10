@@ -45,7 +45,7 @@ func main() {
 
 	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
 	if allowedOrigin == "" {
-		log.Println("ALLOWED_ORIGIN environment variable is not set")
+		log.Println("ALLOWED_ORIGIN environment variable is not set. Using default: http://localhost:3000")
 		allowedOrigin = "http://localhost:3000"
 	}
 
