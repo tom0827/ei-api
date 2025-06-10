@@ -10,14 +10,14 @@ import (
 	ei_proto "ei-api/proto"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type RequestPayload struct {
 	EID string `json:"eid"`
 }
 
-func FetchBackup(c *gin.Context, conn *pgx.Conn) {
+func FetchBackup(c *gin.Context, pool *pgxpool.Pool) {
 	var payload RequestPayload
 	if err := c.ShouldBindJSON(&payload); err != nil || payload.EID == "" {
 		c.JSON(400, gin.H{"error": "Missing required parameter 'eid'"})
@@ -54,13 +54,13 @@ func FetchBackup(c *gin.Context, conn *pgx.Conn) {
 		return
 	}
 
-	stats := models.Stats{
+	stats := models.StatsInput{
 		SoulEggs:     resp.GetBackup().GetGame().GetSoulEggsD(),
 		ProphecyEggs: resp.GetBackup().GetGame().GetEggsOfProphecy(),
 		Prestiges:    resp.GetBackup().GetStats().GetNumPrestiges(),
 	}
 
-	err = repository.InsertStats(c.Request.Context(), conn, stats)
+	err = repository.InsertStats(c.Request.Context(), pool, stats)
 
 	if err != nil {
 		log.Println("Failed to insert stats:", err)
