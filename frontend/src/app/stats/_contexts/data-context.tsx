@@ -1,5 +1,12 @@
 "use client";
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  ReactNode,
+} from "react";
 import { Stats } from "../_types/stats";
 
 interface DataContextType {
@@ -23,6 +30,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const res = await fetch("http://localhost:2052/api/data");
       if (!res.ok) throw new Error("Failed to fetch data");
       const json = await res.json();
+      // const formattedData = formatData(json.data);
       setData(json.data as Stats[]);
     } catch (e: any) {
       setError(e.message);
@@ -30,6 +38,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   }, []);
+
+  // const formatData = (data: Stats[]) => {
+  //   // let runningSum = 0;
+  //   return data.map((item, idx) => {
+  //     // runningSum += Number(item.soulEggs); // replace 'value' with your actual numeric field name
+  //     // const runningAvg = runningSum / (idx + 1);
+  //     return {
+  //       ...item,
+  //       createdAt: new Date(item.createdAt).toLocaleString([], {
+  //         month: "short",
+  //         day: "numeric",
+  //         hour: "2-digit",
+  //         minute: "2-digit",
+  //       }),
+  //     };
+  //   });
+  // };
 
   useEffect(() => {
     fetchData();
@@ -44,6 +69,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
 export function useDataContext() {
   const ctx = useContext(DataContext);
-  if (!ctx) throw new Error("useDataContext must be used within a DataProvider");
+  if (!ctx)
+    throw new Error("useDataContext must be used within a DataProvider");
   return ctx;
 }
