@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'ei-stats-app/backend/**'
+      - '/backend/**'
 
 jobs:
   deploy:
