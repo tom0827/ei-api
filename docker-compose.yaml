@@ -1,8 +1,0 @@
-services:
-  uvic-course-api:
-    build: .
-    env_file: 
-      - .env
-    restart: always
-    ports:
-      - "2052:2052"
