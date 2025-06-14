@@ -27,7 +27,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:2052/api/data");
+      const res = await fetch("https://eiapi.tomchap.dev/api/data");
       if (!res.ok) throw new Error("Failed to fetch data");
       const json = await res.json();
       // const formattedData = formatData(json.data);
