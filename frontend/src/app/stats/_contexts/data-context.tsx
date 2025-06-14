@@ -30,7 +30,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const res = await fetch("https://eiapi.tomchap.dev/api/data");
       if (!res.ok) throw new Error("Failed to fetch data");
       const json = await res.json();
-      // const formattedData = formatData(json.data);
       setData(json.data as Stats[]);
     } catch (e: any) {
       setError(e.message);
@@ -38,23 +37,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   }, []);
-
-  // const formatData = (data: Stats[]) => {
-  //   // let runningSum = 0;
-  //   return data.map((item, idx) => {
-  //     // runningSum += Number(item.soulEggs); // replace 'value' with your actual numeric field name
-  //     // const runningAvg = runningSum / (idx + 1);
-  //     return {
-  //       ...item,
-  //       createdAt: new Date(item.createdAt).toLocaleString([], {
-  //         month: "short",
-  //         day: "numeric",
-  //         hour: "2-digit",
-  //         minute: "2-digit",
-  //       }),
-  //     };
-  //   });
-  // };
 
   useEffect(() => {
     fetchData();

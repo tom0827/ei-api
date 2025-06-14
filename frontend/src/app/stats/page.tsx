@@ -1,60 +1,22 @@
 "use client";
-import { CartesianGrid, XAxis, Line, LineChart, TooltipProps } from "recharts";
 import { useDataContext } from "./_contexts/data-context";
 import {
   Card,
   CardAction,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartConfig,
-} from "@/components/ui/chart";
 import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Stats } from "./_types/stats";
 import { formatLargeNumber } from "../_shared/number-format";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import { useState } from "react";
-
-const chartConfig = {
-  today: {
-    label: "Today",
-    color: "var(--primary)",
-  },
-  average: {
-    label: "Average",
-    color: "var(--primary)",
-  },
-} satisfies ChartConfig;
-
-const CustomToolTip = ({ active, payload, label }: TooltipProps<any, any>) => {
-  if (!active || !payload || !payload.length) return null;
-  const data: Stats = payload[0]["payload"];
-  return (
-    <div className="p-2 bg-popover rounded shadow">
-      <div className="font-semibold mb-1">
-        {new Date(data.createdAt).toLocaleString([], {
-          weekday: "long",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </div>
-      <div>Soul Eggs: </div>
-      <div>Prophecy Eggs: {data.prophecyEggs}</div>
-      <div>Prestiges: {data.prestiges}</div>
-    </div>
-  );
-};
+import AllTimeStatsGraph from "./_components/all-time-stats-graph";
+import AllTimeStatsTable from "./_components/all-time-stats-table";
+import { formatDate } from "../_shared/date-format";
 
 export default function StatsPage() {
   const { data, loading, error, refetch } = useDataContext();
@@ -78,8 +40,6 @@ export default function StatsPage() {
   const gain24h = getGain(24 * 60 * 60 * 1000);
   const gain7d = getGain(7 * 24 * 60 * 60 * 1000);
   const gain30d = getGain(30 * 24 * 60 * 60 * 1000);
-
-  console.log(dataView);
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -142,6 +102,29 @@ export default function StatsPage() {
               </CardAction>
             </CardHeader>
           </Card>
+          <Card className="flex-1 w-sm">
+            <CardHeader>
+              <CardDescription className="text-xs">
+                Soul Eggs:{" "}
+                {data.length > 0
+                  ? formatLargeNumber(data[data.length - 1].soulEggs)
+                  : "N/A"}
+                <br />
+                Prophecy Eggs:{" "}
+                {data.length > 0
+                  ? Number(data[data.length - 1].prophecyEggs)
+                  : "N/A"}
+                <br />
+                Prestiges:{" "}
+                {data.length > 0
+                  ? Number(data[data.length - 1].prestiges)
+                  : "N/A"}
+                <br />
+                From:{" "}
+                {formatDate(data[data.length - 1].createdAt)}
+              </CardDescription>
+            </CardHeader>
+          </Card>
         </div>
         <Card>
           <CardHeader>
@@ -171,51 +154,11 @@ export default function StatsPage() {
               All time soul eggs, prophecy eggs, and prestiges over time.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <ChartContainer
-              config={chartConfig}
-              className="w-full md:h-[200px]"
-            >
-              <LineChart
-                accessibilityLayer
-                data={data}
-                margin={{
-                  top: 5,
-                  right: 10,
-                  left: 16,
-                  bottom: 0,
-                }}
-              >
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="createdAt"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => {
-                    const date = new Date(value);
-                    return date.toLocaleDateString([], {
-                      month: "short",
-                      day: "numeric",
-                    });
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="soulEggs"
-                  strokeWidth={2}
-                  stroke="var(--color-today)"
-                  dot={{
-                    fill: "var(--color-today)",
-                  }}
-                  activeDot={{
-                    r: 5,
-                  }}
-                />
-                <ChartTooltip content={<CustomToolTip />} />
-              </LineChart>
-            </ChartContainer>
-          </CardContent>
+          {dataView === "list" ? (
+            <AllTimeStatsTable data={data} />
+          ) : (
+            <AllTimeStatsGraph data={data} />
+          )}
         </Card>
       </div>
     </div>
