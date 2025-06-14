@@ -7,10 +7,10 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { Stats } from "../_types/stats";
+import { Stat } from "../_types/stats";
 
 interface DataContextType {
-  data: Stats[];
+  data: Stat[];
   loading: boolean;
   error: null | string;
   refetch: () => void;
@@ -19,7 +19,7 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<Stats[]>([]);
+  const [data, setData] = useState<Stat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +30,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const res = await fetch("https://eiapi.tomchap.dev/api/data");
       if (!res.ok) throw new Error("Failed to fetch data");
       const json = await res.json();
-      setData(json.data as Stats[]);
+      const stats: Stat[] = addPercentGain(json.data);
+      setData(stats);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -55,3 +56,17 @@ export function useDataContext() {
     throw new Error("useDataContext must be used within a DataProvider");
   return ctx;
 }
+
+const addPercentGain = (data: any): Stat[] => {
+  return data.map((row: Stat, i: number, arr: Stat[]) => {
+    const prevSoulEggs = Number(arr[i - 1]?.soulEggs) ?? null;
+    const gain =
+      prevSoulEggs && prevSoulEggs !== 0
+        ? ((Number(row.soulEggs) / prevSoulEggs - 1) * 100).toFixed(2)
+        : null;
+    return {
+      ...row,
+      soulEggsGain: gain,
+    };
+  });
+};

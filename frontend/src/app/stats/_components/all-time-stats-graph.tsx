@@ -5,7 +5,7 @@ import {
   ChartTooltip,
   ChartConfig,
 } from "@/components/ui/chart";
-import { Stats } from "../_types/stats";
+import { Stat } from "../_types/stats";
 import { formatLargeNumber } from "@/app/_shared/number-format";
 import { formatDate } from "@/app/_shared/date-format";
 
@@ -18,7 +18,7 @@ const chartConfig = {
 
 const CustomToolTip = ({ active, payload, label }: TooltipProps<any, any>) => {
   if (!active || !payload || !payload.length) return null;
-  const data: Stats = payload[0]["payload"];
+  const data: Stat = payload[0]["payload"];
   return (
     <div className="p-2 bg-popover rounded shadow">
       <div className="font-semibold mb-1">
@@ -32,7 +32,7 @@ const CustomToolTip = ({ active, payload, label }: TooltipProps<any, any>) => {
 };
 
 interface StatsPageProps {
-  data: Stats[];
+  data: Stat[];
 }
 
 const AllTimeStatsGraph = ({ data }: StatsPageProps) => {

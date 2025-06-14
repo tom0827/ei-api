@@ -105,6 +105,7 @@ export default function StatsPage() {
           <Card className="flex-1 w-sm">
             <CardHeader>
               <CardDescription className="text-xs">
+                <div className="text-sm">Last Backup</div>
                 Soul Eggs:{" "}
                 {data.length > 0
                   ? formatLargeNumber(data[data.length - 1].soulEggs)

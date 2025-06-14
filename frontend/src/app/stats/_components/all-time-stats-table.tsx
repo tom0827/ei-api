@@ -9,7 +9,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Stats } from "../_types/stats";
+import { Stat } from "../_types/stats";
 import {
   Table,
   TableBody,
@@ -37,7 +37,7 @@ import {
 import { useMemo, useState } from "react";
 
 interface StatsPageProps {
-  data: Stats[];
+  data: Stat[];
 }
 
 const AllTimeStatsTable = ({ data }: StatsPageProps) => {
@@ -46,7 +46,8 @@ const AllTimeStatsTable = ({ data }: StatsPageProps) => {
     pageIndex: 0,
     pageSize: 5,
   });
-  const columns: ColumnDef<Stats>[] = [
+
+  const columns: ColumnDef<Stat>[] = [
     {
       header: "Soul Eggs",
       accessorKey: "soulEggs",
@@ -86,8 +87,17 @@ const AllTimeStatsTable = ({ data }: StatsPageProps) => {
           : "";
       },
     },
+    {
+      accessorKey: "soulEggsGain",
+      header: "Percent Gain",
+      cell: (info) => {
+        const value = Number(info.getValue());
+        return "+" + value + "%";
+      },
+    },
   ];
-  const table = useReactTable<Stats>({
+
+  const table = useReactTable<Stat>({
     data: reversedData,
     columns,
     state: {
